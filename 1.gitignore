@@ -1,0 +1,16 @@
+# 编译输出目录
+out/
+build/
+bin/
+obj/
+
+# Xmake / CMake 缓存
+.xmake/
+CMakeCache.txt
+CMakeFiles/
+
+# IDE 配置
+.vs/
+.idea/
+*.suo
+*.user
