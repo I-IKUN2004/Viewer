@@ -12,6 +12,8 @@
 #include "mc/world/level/BlockSource.h"
 #include "mc/world/actor/Actor.h"
 #include "mc/world/actor/ActorDefinitionIdentifier.h"
+#include "mc/world/actor/ActorFactory.h"
+#include <utility>
 #include "fmt/format.h"
 #include <nlohmann/json.hpp>
 #include <fstream>
@@ -109,7 +111,10 @@ void sendCreateForm(Player& player) {
         auto* level = &p.getLevel();
 
         ActorDefinitionIdentifier def("minecraft:armor_stand");
-        Actor* entity = level->addEntity(*blockSource, def, spawnPos, {0.0f, 0.0f});
+        
+        // 核心修复：通过 ActorFactory 构造实体数据，然后再移交给 addEntity
+        auto actorCtx = level->getActorFactory().createActor(def, *blockSource, spawnPos, {0.0f, 0.0f});
+        Actor* entity = level->addEntity(*blockSource, std::move(actorCtx));
 
         if (entity) {
             entity->setNameTag(text);
@@ -291,7 +296,10 @@ void sendAddLineForm(Player& player, std::string const& ftId) {
         auto* blockSource = &p.getDimension().getBlockSourceFromMainChunkSource();
         auto* level = &p.getLevel();
         ActorDefinitionIdentifier def("minecraft:armor_stand");
-        Actor* entity = level->addEntity(*blockSource, def, spawnPos, {0.0f, 0.0f});
+        
+        // 核心修复：工厂创建再移交
+        auto actorCtx = level->getActorFactory().createActor(def, *blockSource, spawnPos, {0.0f, 0.0f});
+        Actor* entity = level->addEntity(*blockSource, std::move(actorCtx));
 
         if (entity) {
             entity->setNameTag(text);
@@ -312,7 +320,8 @@ void sendAddLineForm(Player& player, std::string const& ftId) {
 }
 
 void registerCommand() {
-    auto& cmd = ll::command::CommandRegistrar::getInstance(*ll::mod::NativeMod::current())
+    // 核心修复：老老实实传 false 回去
+    auto& cmd = ll::command::CommandRegistrar::getInstance(false)
         .getOrCreateCommand("ikft", "打开悬浮字管理系统", CommandPermissionLevel::GameDirectors);
 
     cmd.overload().execute([](CommandOrigin const& origin, CommandOutput& output) {
