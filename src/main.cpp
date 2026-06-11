@@ -12,6 +12,7 @@
 #include "mc/world/level/BlockSource.h"
 #include "mc/world/actor/Actor.h"
 #include "mc/world/actor/ActorDefinitionIdentifier.h"
+#include "mc/math/Vec2.h" // 补足了旋转角度所需的头文件
 #include "fmt/format.h"
 #include <nlohmann/json.hpp>
 #include <fstream>
@@ -109,7 +110,8 @@ void sendCreateForm(Player& player) {
         auto* level = &p.getLevel();
 
         ActorDefinitionIdentifier def("minecraft:armor_stand");
-        Actor* entity = level->addEntity(*blockSource, def, spawnPos);
+        // 补充第4个参数 Vec2{0.0f, 0.0f} 以适配当前版本 API
+        Actor* entity = level->addEntity(*blockSource, def, spawnPos, Vec2{0.0f, 0.0f});
 
         if (entity) {
             entity->setNameTag(text);
@@ -291,7 +293,8 @@ void sendAddLineForm(Player& player, std::string const& ftId) {
         auto* blockSource = &p.getDimension().getBlockSourceFromMainChunkSource();
         auto* level = &p.getLevel();
         ActorDefinitionIdentifier def("minecraft:armor_stand");
-        Actor* entity = level->addEntity(*blockSource, def, spawnPos);
+        // 同样在此处补充 Vec2
+        Actor* entity = level->addEntity(*blockSource, def, spawnPos, Vec2{0.0f, 0.0f});
 
         if (entity) {
             entity->setNameTag(text);
@@ -312,7 +315,8 @@ void sendAddLineForm(Player& player, std::string const& ftId) {
 }
 
 void registerCommand() {
-    auto& cmd = ll::command::CommandRegistrar::getInstance()
+    // 传入当前 Mod 的实例以适配 LL3 指令注册 API
+    auto& cmd = ll::command::CommandRegistrar::getInstance(*ll::mod::NativeMod::current())
         .getOrCreateCommand("ikft", "打开悬浮字管理系统", CommandPermissionLevel::GameDirectors);
 
     cmd.overload().execute([](CommandOrigin const& origin, CommandOutput& output) {
