@@ -27,11 +27,12 @@ target("viewer") -- Change this to your mod name.
     add_packages("levilamina")
     set_exceptions("none") -- To avoid conflicts with /EHa.
     set_kind("shared")
-    set_languages("c++20")
+    set_languages("c++23")
     set_symbols("debug")
     add_headerfiles("src/**.h")
     add_files("src/**.cpp")
     add_includedirs("src")
+    add_includedirs("third_party/JSONC/include")
     if is_config("target_type", "server") then
     --  add_includedirs("src-server")
     --  add_files("src-server/**.cpp")

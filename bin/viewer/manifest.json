@@ -1,0 +1,7 @@
+{
+    "name": "viewer",
+    "entry": "viewer.dll",
+    "version": "0.0.0",
+    "type": "native",
+    "platform": "server"
+}
